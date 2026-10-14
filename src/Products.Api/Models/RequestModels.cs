@@ -4,8 +4,8 @@ namespace Products.API.Models;
 public record CreateProductRequest(
     string Name,
     decimal Price,
-    int InitialStock
-    string Description,
+    int InitialStock,
+    string Description
 );
 
 // Datos necesarios para actualizar el stock de un producto
