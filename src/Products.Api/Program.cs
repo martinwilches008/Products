@@ -6,8 +6,19 @@ using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    // Convertir la URL de Railway (postgresql://...) al formato que espera Npgsql
+    if (connectionString.StartsWith("postgresql://") || connectionString.StartsWith("postgres://"))
+    {
+        var uri = new Uri(connectionString);
+        var userInfo = uri.UserInfo.Split(':');
+        connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};";
+    }
+}
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=products.db"));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
@@ -28,7 +39,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 }
 
 app.UseSwagger();
