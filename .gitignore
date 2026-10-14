@@ -23,3 +23,8 @@
 # Resultados de pruebas
 [Tt]est[Rr]esult*/
 TestResult.xml
+
+# Base de datos SQLite local
+*.db
+*.db-shm
+*.db-wal
